@@ -47,15 +47,5 @@ npm run dev
 
 ---
 
-## 🎮 How to Demo
-1. Open up `http://localhost:5173` in **two separate browser windows** side-by-side.
-2. In both windows, click anywhere inside the deep space canvas to focus the window.
-3. Use your `W` `A` `S` `D` keys to navigate the avatars until they are close to one another!
-4. The moment the glowing orbs touch, the **Proximity Chat Interface** will organically animate into view.
-5. Send messages across the sockets instantly bridging both sessions! 
-
-*Make sure to record your 2-5 min interaction using OBS/ScreenStudio showcasing the seamless connectivity!*
-
----
 
 > Built with love using the world's most performant real-time frameworks to pioneer natural spatial communication. 🌌
