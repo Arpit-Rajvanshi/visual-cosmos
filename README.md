@@ -2,7 +2,6 @@
 
 This is the official submission repository for **Virtual Cosmos**, a production-ready 2D multiplayer proximity environment where users naturally connect based on spatial presence.
 
-![Virtual Cosmos Demo](./docs/demo.png) *(Add a screenshot or thumbnail here!)*
 
 ## 🚀 The Concept
 Users existence in a shared real-time 2D space. Players navigate using standard `[W] [A] [S] [D]` movement mechanics across an infinite canvas. When two players navigate within a predefined proximity radius (`< 100px`), they automatically form an encrypted socket connection—instantiating a beautiful glassmorphic proximity chat interface. The moment they walk away, the connection fades and the chat smoothly vanishes.
