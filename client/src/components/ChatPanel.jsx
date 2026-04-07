@@ -25,10 +25,16 @@ export default function ChatPanel({ socket, activeRoom }) {
       setMessages((prev) => [...prev, data]);
     }
 
+    function onHistory(history) {
+      setMessages(history);
+    }
+
     socket.on('chatMessage', onMessage);
+    socket.on('chatHistory', onHistory);
 
     return () => {
       socket.off('chatMessage', onMessage);
+      socket.off('chatHistory', onHistory);
     };
   }, [socket, activeRoom]);
 

@@ -7,7 +7,17 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 
-const app = express();
+// Mongoose initialization
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/virtual_cosmos';
+
+import Message from './models/Message.js';
+import User from './models/User.js';
+
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('Connected to MongoDB 🌌'))
+    .catch(err => console.error('MongoDB connection error:', err));
+}
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -75,7 +85,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chatMessage', (msg) => {
+  socket.on('chatMessage', async (msg) => {
     let userRoom = null;
     for (const [roomCode, data] of activeRooms.entries()) {
       if (data.users.includes(socket.id)) {
@@ -85,14 +95,32 @@ io.on('connection', (socket) => {
     }
     
     if (userRoom) {
-      io.to(userRoom).emit('chatMessage', {
-        sender: users.get(socket.id).name,
+      const user = users.get(socket.id);
+      
+      const messageData = {
+        sender: user.name,
         senderId: socket.id,
         text: msg,
         timestamp: new Date()
-      });
+      };
+
+      // Broadcast immediately
+      io.to(userRoom).emit('chatMessage', messageData);
+
+      // Persist to DB asynchronously
+      try {
+        await Message.create({
+          roomCode: userRoom,
+          ...messageData
+        });
+      } catch (err) {
+        console.error('Failed to save message:', err);
+      }
     }
   });
+
+  // When proximity is established, the 'userConnected' event was already being emitted.
+  // We can add a way to fetch history here if needed, but for now we'll just save.
 });
 
 // Proximity Loop
@@ -124,6 +152,11 @@ setInterval(() => {
             activeRooms.set(roomCode, { users: [u1.id, u2.id] });
             
             io.to(roomCode).emit('userConnected', { roomCode, connectedWith: [u1.id, u2.id] });
+
+            // Fetch and Send History
+            Message.find({ roomCode }).sort({ timestamp: 1 }).limit(50).then(history => {
+              io.to(roomCode).emit('chatHistory', history);
+            }).catch(err => console.error('History fetch error:', err));
           } else {
             console.log('Sockets not found for connection!', !!socket1, !!socket2);
           }
